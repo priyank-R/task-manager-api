@@ -3,6 +3,9 @@ const User = require('../models/user')
 const bcrypt = require('bcrypt')
 const auth = require('../middleware/auth')
 
+const passport = require('passport')
+require('../config/passport')(passport)
+
 const router = new express.Router()
 
 
@@ -39,7 +42,7 @@ router.post('/users/login',async (req,res)=>{
 
 
 //---------------------Logging Out------------------///
-router.post('/users/logout',auth,async (req,res)=>{
+router.post('/users/logout',passport.authenticate('jwt',{session:false}),async (req,res)=>{
 
     console.log(req.token)
 
@@ -57,7 +60,7 @@ router.post('/users/logout',auth,async (req,res)=>{
 
 
 //---------------------Logout ALL Sessions -------------------------//
-router.post('/users/logoutAll',auth,async (req,res)=>{
+router.post('/users/logoutAll',passport.authenticate('jwt',{session:false}),async (req,res)=>{
 
     try{
         req.user.tokens = []
@@ -70,9 +73,21 @@ router.post('/users/logoutAll',auth,async (req,res)=>{
 })
 
 //----------------Getting the current user (Read Profile) -------------//
-router.get('/users/me',auth,async(req,res)=>{
-    try{
+// router.get('/users/me',auth,async(req,res)=>{
+//     try{
         
+//         res.send({user: req.user, token:req.token})
+//     }catch(e){
+//         res.send(e.message)
+
+//     }
+// })
+
+
+//Getting the current user with PASSPORT MIDDLEWRE (Read Profile)
+router.get('/users/me',passport.authenticate('jwt',{session:false}),async(req,res)=>{
+    try{
+        console.log(req.user)
         res.send({user: req.user, token:req.token})
     }catch(e){
         res.send(e.message)
@@ -82,9 +97,10 @@ router.get('/users/me',auth,async(req,res)=>{
 
 
 
+
 //--------------Updating the profile of the authenticated user-----------//
 
-router.patch('/users/me',auth,  async (req,res)=>{
+router.patch('/users/me', passport.authenticate('jwt',{session:false}), async (req,res)=>{
 
     //Store Id in a variable
     let id = req.user._id
@@ -141,7 +157,7 @@ router.patch('/users/me',auth,  async (req,res)=>{
 
 
 //-----------------Deleting The Authenticated User from the system
-router.delete('/users/me', auth, async(req, res)=>{
+router.delete('/users/me', passport.authenticate('jwt',{session:false}), async(req, res)=>{
     try{
      await req.user.remove()
         
