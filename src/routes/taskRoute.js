@@ -27,11 +27,36 @@ router.patch('/tasks/:id', auth, async (req,res)=>{
     }
 })
 
+//Fetch the tasks of a specific user
+//GET /tasks?completed=true
+//GET /tasks?limit=2&skip=0
+//GET /tasks?sortBy=createdAt:desc
+
 router.get('/tasks',auth, async (req,res)=>{
     try{
+
+       const match = {} 
+       if(req.query.completed){
+           match.completed = req.query.completed === 'true'   //Converting the value true to Boolean 
+       }
+
+       const parts = req.query.sortBy.split(':')
+       let sort = {}
+       sort[parts[0]] = parts[1] === 'desc'?-1:1
+
+
+     
     //const task = await Task.find({owner:req.user._id})
     //ALTERNATIVE for the above line 
-    await req.user.populate('tasks_virtual').execPopulate()
+    await req.user.populate({
+        path: 'tasks_virtual',
+        match,
+        options:{
+            limit: parseInt(req.query.limit),
+            skip: parseInt(req.query.skip),
+            sort
+        }
+    }).execPopulate()
     res.send(req.user.tasks_virtual)
     }catch (e){
      res.status(500).send(e)   
