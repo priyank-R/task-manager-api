@@ -5,6 +5,8 @@ const User = require('../models/user')
 const bcrypt = require('bcrypt')
 const auth = require('../middleware/auth')
 
+const { sendWelcomeMail, sendCancelEmail } = require('../emails/account')
+
 const passport = require('passport')
 require('../config/passport')(passport)
 
@@ -22,6 +24,7 @@ router.post('/users',async (req,res)=>{
     console.log(user)
     try{
         await user.save()
+        sendWelcomeMail(user.email,user.name)
         const token = await user.generateAuthToken()
         res.status(201).send({user,token})
     }catch(e){
@@ -226,6 +229,8 @@ router.patch('/users/me', passport.authenticate('jwt',{session:false}), async (r
 router.delete('/users/me', passport.authenticate('jwt',{session:false}), async(req, res)=>{
     try{
      await req.user.remove()
+     sendCancelEmail(req.user.email, req.user.name)
+
         
         res.send(req.user)
 

@@ -8,7 +8,7 @@ const auth = async(req,res,next)=>{
     const token = req.header('Authorization').replace('Bearer ','')
     
     //Verifying the JWT with the secretkey
-    const decoded =  jwt.verify(token, 'mysecretkey')
+    const decoded =  jwt.verify(token, process.env.JWT_SECRET)
 
     
 

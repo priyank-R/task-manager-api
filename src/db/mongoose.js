@@ -1,7 +1,7 @@
 const mongoose = require('mongoose')
 const validator = require('validator')
 
-const mongodbURL = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/task-manager-api'
+const mongodbURL = process.env.MONGODB_URI || process.env.MONGODB_URL+ '/task-manager-api'
 
 mongoose.connect(mongodbURL, {
     useNewUrlParser:true,
