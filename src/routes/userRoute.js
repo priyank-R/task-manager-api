@@ -21,13 +21,14 @@ router.post('/users',async (req,res)=>{
     console.log(req.body)
     const {body:{name,age,email}} = req
     //console.log(body)
-    console.log(user)
+  //  console.log(user)
     try{
         await user.save()
-        sendWelcomeMail(user.email,user.name)
+      //  sendWelcomeMail(user.email,user.name)
         const token = await user.generateAuthToken()
         res.status(201).send({user,token})
     }catch(e){
+        console.log(e)
         res.status(400).send(e)
     }
 })
@@ -44,8 +45,8 @@ router.post('/users/login',async (req,res)=>{
         res.status(200).send({user, token})
 
     }catch(error){
-        console.log(error)
-        res.status(401).send(error.message)
+        console.log("Login-Error: ", error)
+        res.status(401).send()
     }
 })
 
