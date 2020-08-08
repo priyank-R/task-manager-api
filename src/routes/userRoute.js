@@ -18,7 +18,7 @@ const router = new express.Router()
 router.post('/users',async (req,res)=>{
 
     const user = new User(req.body)
-    console.log(req.body)
+   // console.log(req.body)
     const {body:{name,age,email}} = req
     //console.log(body)
   //  console.log(user)
@@ -45,7 +45,7 @@ router.post('/users/login',async (req,res)=>{
         res.status(200).send({user, token})
 
     }catch(error){
-        console.log("Login-Error: ", error)
+      //  console.log("Login-Error: ", error)
         res.status(401).send()
     }
 })
@@ -54,7 +54,7 @@ router.post('/users/login',async (req,res)=>{
 //---------------------Logging Out------------------///
 router.post('/users/logout',passport.authenticate('jwt',{session:false}),async (req,res)=>{
 
-    console.log(req.token)
+  //  console.log(req.token)
 
     try{
         req.user.tokens = req.user.tokens.filter((token)=>{
@@ -117,6 +117,7 @@ router.post('/users/me/avatar',auth,avatar.single('avatar-pic'),async (req,res)=
 
 },(error,req,res,next)=>{//This is the predefined function signature to catch all the errors that the middleware throws.
 
+    console.log('Avatar upload error: ',error)
     res.status(400).send({error:error.message})
 })
 
@@ -157,10 +158,11 @@ router.delete('/users/me/avatar',auth, async (req,res)=>{
 //Getting the current user with PASSPORT MIDDLEWRE (Read Profile)
 router.get('/users/me',passport.authenticate('jwt',{session:false}),async(req,res)=>{
     try{
-        console.log(req.user)
+       
         res.send({user: req.user, token:req.token})
     }catch(e){
-        res.send(e.message)
+        console.log('Profile fetch error:',e)
+        res.status(400).send(e.message)
 
     }
 })
@@ -231,9 +233,8 @@ router.delete('/users/me', passport.authenticate('jwt',{session:false}), async(r
     try{
      await req.user.remove()
      sendCancelEmail(req.user.email, req.user.name)
-
-        
         res.send(req.user)
+        
 
     }catch(e){
         res.status(500).send(e.message)
